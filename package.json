@@ -1,0 +1,26 @@
+{
+  "name": "gosugamers-api",
+  "version": "0.0.1",
+  "description": "Creates a GosuGamers.net API via web-scraping",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rannmann/node-gosugamers-api.git"
+  },
+  "keywords": [
+    "gosu",
+    "gosugamers"
+  ],
+  "author": "Jake 'rannmann' Forrester",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/rannmann/node-gosugamers-api/issues"
+  },
+  "homepage": "https://github.com/rannmann/node-gosugamers-api#readme",
+  "dependencies": {
+    "cheerio": "^0.19.0",
+    "each-async": "^1.1.1",
+    "moment": "^2.10.6",
+    "request": "^2.61.0"
+  }
+}
