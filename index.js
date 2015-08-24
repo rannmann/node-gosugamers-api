@@ -98,7 +98,13 @@ Gosu.parseMatch = function (url, callback){
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 	  	match.home.name = $('.opponent1 h3 a').text();
+	  	match.home.url  = $('.opponent1 h3 a').attr('href');
+	  	match.home.country = $('.opponent1 .flag').attr('title');
+	  	match.home.rank = parseInt($('.opponent1 .ranked').text().replace(/[^0-9\.]+/g, ''));
 	  	match.away.name = $('.opponent2 h3 a').text();
+	  	match.away.url = $('.opponent2 h3 a').attr('href');
+	  	match.away.country = $('.opponent2 .flag').attr('title');
+	  	match.away.rank = parseInt($('.opponent2 .ranked').text().replace(/[^0-9\.]+/g, ''));
 	  	match.rounds = $('.bestof').text();
 
 	  	if ($('#valuebet').index()) {
