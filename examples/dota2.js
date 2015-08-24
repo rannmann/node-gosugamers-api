@@ -1,6 +1,6 @@
 var Gosu = require('../index');
 
-// Pull page 5 of Dota2 matches.
+// Pull page 3 of Dota2 matches.
 Gosu.fetchMatchUrls('dota2', 3, function (err, urls){
 	if (err) { console.log(err); }
 	else {
