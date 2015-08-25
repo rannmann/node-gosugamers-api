@@ -135,6 +135,8 @@ Gosu.parseMatch = function (url, callback){
 	  		}
 	  	} else if ($('.vs .match-is-live').text()) { // Current Match
 	  		match.status = 'Live';
+	  	} else if ($('.upcomming')) { // Special case for upcoming matches with no scheduled time
+	  		match.status = 'Upcoming';
 	  	} else {
 	  		return callback('Unknown match status');
 	  	}
