@@ -1,5 +1,6 @@
 # GosuGamers API for Node.js
 [![forthebadge](http://forthebadge.com/images/badges/no-ragrets.svg)](http://forthebadge.com)
+[![Dependency Status](https://david-dm.org/rannmann/node-gosugamers-api.svg)](https://david-dm.org/rannmann/node-gosugamers-api)
 
 This module makes grabbing and parsing match data from GosuGamers.net simple.  All methods are static, so no need to instantiate.
 
