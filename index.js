@@ -35,7 +35,9 @@ Gosu.fetchMatchUrls = function (game, page, callback){
 		}
 	}
 	// Check type of 'page'
-	if (isNaN(page) || parseInt(Number(page)) != page || isNaN(parseInt(page, 10))) {
+	if (page === null) {
+		page = 1;
+	} else if (isNaN(page) || parseInt(Number(page)) != page || isNaN(parseInt(page, 10))) {
 		return callback('Invalid page number');
 	}
 
