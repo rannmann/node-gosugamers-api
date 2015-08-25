@@ -1,6 +1,6 @@
 {
   "name": "gosugamers-api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Creates a GosuGamers.net API via web-scraping",
   "main": "index.js",
   "repository": {
