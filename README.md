@@ -14,10 +14,10 @@ Haven't got around to putting on npm yet so.
 
 Install dependencies
 
-*npm install cheerio
-*npm install request
-*npm install each-async
-*npm install moment
+* npm install cheerio
+* npm install request
+* npm install each-async
+* npm install moment
 
 #usage
 Out of the box you can just run
