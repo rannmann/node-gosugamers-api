@@ -4,23 +4,27 @@ This module makes grabbing and parsing match data from GosuGamers.net simple.  A
 
 This is a modifed version of https://github.com/rannmann/node-gosugamers-api.
 I have modified it to:
+
 1. Get Youtube id of VOD's for matches (if available)
 2. download the vod (if you want to)
+
 Mainly did this so I could download all the CSGO vods to watch at a later date + help update /r/CSeventVODs
 # Setup
 Haven't got around to putting on npm yet so.
 
 Install dependencies
-npm install cheerio
-npm install request
-npm install each-async
-npm install moment
+*npm install cheerio
+*npm install request
+*npm install each-async
+*npm install moment
 
 #usage
 Out of the box you can just run
+
 ```
 node index.js [url]
 ```
+
 that will give you info of the match + vod links
 download option coming soon!
 
