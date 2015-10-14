@@ -1,33 +1,22 @@
+[![forthebadge](http://forthebadge.com/images/badges/no-ragrets.svg)](http://forthebadge.com)
+[![Dependency Status](https://david-dm.org/rannmann/node-gosugamers-api.svg)](https://david-dm.org/rannmann/node-gosugamers-api)
+[![Build Status](https://travis-ci.org/rannmann/node-gosugamers-api.svg?branch=master)](https://travis-ci.org/rannmann/node-gosugamers-api)
 
-# GosuGamers CSGO API + script for Node.js
+# GosuGamers API for Node.js
 This module makes grabbing and parsing match data from GosuGamers.net simple.  All methods are static, so no need to instantiate.
 
-This is a modifed version of https://github.com/rannmann/node-gosugamers-api.
-I have modified it to:
-
-1. Get Youtube id of VOD's for matches (if available)
-2. download the vod (if you want to)
-
-Mainly did this so I could download all the CSGO vods to watch at a later date + help update /r/CSeventVODs
 # Setup
-Haven't got around to putting on npm yet so.
+Install via `npm install gosugamers-api`.
 
-Install dependencies
+Use in your project just by including the module and running the methods.
 
-* npm install cheerio
-* npm install request
-* npm install each-async
-* npm install moment
+```javascript
+var Gosu = require('gosugamers-api');
 
-#usage
-Out of the box you can just run
-
+Gosu.fetchMatchUrls('dota2', function(err, urls) {
+  console.log(urls);
+});
 ```
-node index.js [url]
-```
-
-that will give you info of the match + vod links
-download option coming soon!
 
 # Methods
 
