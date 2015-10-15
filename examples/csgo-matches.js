@@ -1,4 +1,4 @@
-var Gosu = require("./gosuapi.js");
+var Gosu = require("../index.js");
 var link = process.argv[2];
 Gosu.parseMatch(link , function(err,match){
 	console.log(match);

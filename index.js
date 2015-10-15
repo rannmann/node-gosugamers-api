@@ -73,6 +73,19 @@ Gosu.fetchMatchUrls = function (game, page, callback){
 	});
 }
 
+/**
+ * Callback for fetching VOD URLs
+ *
+ * @callback fetchUrlsCallback
+ * @param {(null|string)} error - An error string
+ * @param {array} An array of strings containing URLs
+ */
+
+/*
+ * @param   {string} [game] - Game type
+ * @param   {integer} [page=1] - Page number
+ * @param   {fetchUrlsCallback} callback
+ */
 Gosu.fetchVodUrls = function (game, page, callback){
 	if (typeof game === 'function') { // Only required param
 		var callback = game;
@@ -113,15 +126,18 @@ Gosu.fetchVodUrls = function (game, page, callback){
 	request(requrl, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
+			//Get to the table that has all the match information
 	  	$('.content .simple tbody').each(function (i, element) {
 	  		var table = cheerio.load(element);
+				//Get to the <a tag that has the URL to the vod of the match
 		  	table('tr td a.video').each(function (i, element) {
-					//Only print unique links (as the parse match function gets all VOD links on the page)
+					//split the link to remove the ?vodid off the end. usefull when returning the array because we can sort and uniq them
 					var temp = element.attribs.href.split(/[?]/);
 		  		urls.push('http://www.gosugamers.net'+temp[0]);
 		  	});
 	  	});
 
+			//Function to sort and return only unique entries
 			function sort_unique(arr) {
 			arr = arr.sort(function (a, b) { return a*1 - b*1; });
 			var ret = [arr[0]];
@@ -132,6 +148,8 @@ Gosu.fetchVodUrls = function (game, page, callback){
 			}
 			return ret;
 	}
+		//Sort the urls and only return uniq entries (ie no duplicates) as the parseMatch function will get all VODS on a page so
+		//dont need all the extra urls for each match (for multi round matches)
 		 var sortedurls = sort_unique(urls);
 	  	return callback(null, sortedurls);
 	  } else {
@@ -139,6 +157,7 @@ Gosu.fetchVodUrls = function (game, page, callback){
 	  }
 	});
 }
+
 /**
  * Callback for parsing match URLs
  *
@@ -156,7 +175,6 @@ Gosu.parseMatch = function (url, callback){
 		url: url,
 		home: {},
 		away: {},
-		vods: [],
 		status: 'Unknown'
 	};
 
@@ -175,17 +193,6 @@ Gosu.parseMatch = function (url, callback){
 	  	match.away.country = $('.opponent2 .flag').attr('title');
 	  	match.away.rank = parseInt($('.opponent2 .ranked').text().replace(/[^0-9\.]+/g, ''));
 	  	match.rounds = $('.bestof').text();
-			var urls = $('.matches-streams span textarea iframe');
-			console.log(urls);
-			var index;
-			if (urls.length == 0){
-				match.vods.push("No VODs found for this match");
-			}else{
-				for (index = 0;index < urls.length; ++index){
-					//console.log(urls[index].attribs.src.split(/[/?]/)[4]);
-					match.vods.push(urls[index].attribs.src.split(/[/?]/)[4]);
-				}
-		}
 			//var str = $('.gg-row .col-12 .dark-buttons.matches-stream-options .matches-streams span textarea iframe').attr('src');
 			//match.vods.url = str.substring(str.lastIndexOf("/")+1,str.lastIndexOf("?"));
 	  	if ($('#valuebet').index()) {
@@ -211,11 +218,28 @@ Gosu.parseMatch = function (url, callback){
 	  			match.status = 'Complete';
 	  			match.home.score = Number($('.hidden.results').children().first().text());
 	  			match.away.score = Number($('.hidden.results').children().last().text());
+					var urls = $('.matches-streams span textarea iframe');
+					//console.log(urls);
+					var index;
+					match.vods = [];
+					if (urls.length == 0){
+						match.vods.push("No VODs found for this match");
+					}else{
+						for (index = 0;index < urls.length; ++index){
+							//console.log(urls[index].attribs.src.split(/[/?]/)[4]);
+							match.vods.push(urls[index].attribs.src.split(/[/?]/)[4]);
+						}
+				  }
 	  		} else {
 	  			match.status = 'Upcoming';
 	  		}
 	  	} else if ($('.vs .match-is-live').text()) { // Current Match
 	  		match.status = 'Live';
+				var twitch = $('.matches-streams .match-stream-tab object').attr('data').split("=")[1];
+				var twitchurl = "www.twitch.tv/"+twitch;
+				match.livestream = twitchurl;
+				//match.vods.push(twitchurl);
+
 	  	} else if ($('.upcomming')) { // Special case for upcoming matches with no scheduled time
 	  		match.status = 'Upcoming';
 	  	} else {
