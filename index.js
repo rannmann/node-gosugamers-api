@@ -193,6 +193,8 @@ Gosu.parseMatch = function (url, callback){
 	  	match.away.country = $('.opponent2 .flag').attr('title');
 	  	match.away.rank = parseInt($('.opponent2 .ranked').text().replace(/[^0-9\.]+/g, ''));
 	  	match.rounds = $('.bestof').text();
+			match.tournament = $('.match-heading-overlay h1 a').text();
+			match.tournamenturl = $('.match-heading-overlay h1 a').attr('href');
 			//var str = $('.gg-row .col-12 .dark-buttons.matches-stream-options .matches-streams span textarea iframe').attr('src');
 			//match.vods.url = str.substring(str.lastIndexOf("/")+1,str.lastIndexOf("?"));
 	  	if ($('#valuebet').index()) {
