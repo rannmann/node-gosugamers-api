@@ -29,10 +29,17 @@ Returns a list of URLs for a game type.  If no game is provided, the home page i
   - **error**: `null` or `String` error message
   - **URLs**: `Array` of strings containing full URLs to each match on the page
 
+### fetchVodUrls([game,] [page,] callback)
+Returns a list of URLs from the vod page for a game type. Game is required
 
+- **game**: One of the following: `csgo`, `dota2`, `hearthstone`, `hots`, `lol`.
+- **page**: An integer, string representing an integer, or `null`
+- **callback**: Function that takes two parameters:
+  - **error**: `null` or `String` error message
+  - **URLs**: `Array` of strings containing full URLs to each match on the page
 
 ### parseMatch(url, callback)
-Given a URL an object containing match information is returned.  Matches that are currently live have no `datetime` attribute.  Matches that have not completed do not have score information.
+Given a URL an object containing match information is returned.  Matches that are currently live have no `datetime` attribute.  Matches that have not completed do not have score information. Matches that are live will display the stream URL.
 
 - **url**: A GosuGamers URL string
 - **callback**: Function that takes two parameters:
@@ -55,10 +62,12 @@ See the example match data below.
            country: 'Serbia',
            rank: 84,
            score: 1 },
+        vods: ['THEXoAwwmho'],
         status: 'Complete',
         type: 'dota2',
         rounds: 'Best of 3',
         valueBet: true,
+        livestream: 'www.twitch.tv/esea',
         datetime: 1440522000
     }
 
