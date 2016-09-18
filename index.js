@@ -57,7 +57,7 @@ Gosu.prototype.fetchMatchUrls = function (game, page, callback){
 	}
 
 	requrl = requrl + '/gosubet?r-page='+page;
-	request(requrl, {timeout: 5000}, function (error, response, html) {
+	request(requrl, {timeout: 15000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 	  	$('table.simple.matches tbody').each(function (i, element) {
@@ -115,7 +115,7 @@ Gosu.prototype.fetchVodUrls = function (game, page, callback){
 		else return callback('Unknown game type: '+game);
 	}
 
-	request(requrl, {timeout: 5000}, function (error, response, html) {
+	request(requrl, {timeout: 15000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 			//Get to the table that has all the match information
