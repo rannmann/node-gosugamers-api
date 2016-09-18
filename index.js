@@ -55,11 +55,9 @@ Gosu.prototype.fetchMatchUrls = function (game, page, callback){
 		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game];
 		else return callback('Unknown game type: '+game);
 	}
-	else {
-		return callback('Unknown game type: '+game);
-	}
+
 	requrl = requrl + '/gosubet?r-page='+page;
-	request(requrl, function (error, response, html) {
+	request(requrl, {timeout: 5000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 	  	$('table.simple.matches tbody').each(function (i, element) {
@@ -116,10 +114,8 @@ Gosu.prototype.fetchVodUrls = function (game, page, callback){
 		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game] + '/vods';
 		else return callback('Unknown game type: '+game);
 	}
-	else {
-		return callback('Unknown game type: '+game);
-	}
-	request(requrl, function (error, response, html) {
+
+	request(requrl, {timeout: 5000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 			//Get to the table that has all the match information
@@ -133,8 +129,8 @@ Gosu.prototype.fetchVodUrls = function (game, page, callback){
 		  	});
 	  	});
 
-			//Function to sort and return only unique entries
-			function sort_unique(arr) {
+		//Function to sort and return only unique entries
+		function sort_unique(arr) {
 			arr = arr.sort(function (a, b) { return a*1 - b*1; });
 			var ret = [arr[0]];
 			for (var i = 1; i < arr.length; i++) { // start loop at 1 as element 0 can never be a duplicate
@@ -143,10 +139,10 @@ Gosu.prototype.fetchVodUrls = function (game, page, callback){
 					}
 			}
 			return ret;
-	}
+		}
 		//Sort the urls and only return uniq entries (ie no duplicates) as the parseMatch function will get all VODS on a page so
 		//dont need all the extra urls for each match (for multi round matches)
-		 var sortedurls = sort_unique(urls);
+		var sortedurls = sort_unique(urls);
 	  	return callback(null, sortedurls);
 	  } else {
 	  	return callback(error);
