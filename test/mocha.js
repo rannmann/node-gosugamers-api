@@ -9,9 +9,9 @@ var params = [
 	{type: 'dota2', page: null, name: 'DOTA 2'},
 	{type: 'hearthstone', page: null, name: 'Hearthstone'},
 	{type: 'hots', page: null, name: 'Heroes of the Storm'},
-	{type: 'lol', page: null, name: 'League of Legends'}
+	{type: 'lol', page: null, name: 'League of Legends'},
+	{type: 'overwatch', page: null, name: 'Overwatch'}
 ];
-
 describe('Fetch URLs', function(){
 	params.forEach(function (test) {
 		describe(test.name, function(){

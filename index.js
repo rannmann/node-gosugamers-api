@@ -3,10 +3,18 @@ var request = require('request');
 var eachAsync = require('each-async');
 var moment = require('moment');
 
-module.exports = Gosu;
-function Gosu(){}
-
-
+module.exports = new Gosu();
+function Gosu(){
+	this.gameSuffix = {
+		csgo: '/counterstrike',
+		dota2: '/dota2',
+		hearthstone: '/hearthstone',
+		hots: '/heroesofthestorm',
+		lol: '/lol',
+		overwatch: '/overwatch'
+	}
+	this.requrl = 'http://www.gosugamers.net';
+}
 /**
  * Callback for fetching match URLs
  *
@@ -20,7 +28,7 @@ function Gosu(){}
  * @param   {integer} [page=1] - Page number
  * @param   {fetchUrlsCallback} callback
  */
-Gosu.fetchMatchUrls = function (game, page, callback){
+Gosu.prototype.fetchMatchUrls = function (game, page, callback){
 	if (typeof game === 'function') { // Only required param
 		var callback = game;
 		var page = 1;
@@ -41,18 +49,10 @@ Gosu.fetchMatchUrls = function (game, page, callback){
 		return callback('Invalid page number');
 	}
 
-	// Map URLs to game types
-	var gameSuffix = {
-		csgo: '/counterstrike',
-		dota2: '/dota2',
-		hearthstone: '/hearthstone',
-		hots: '/heroesofthestorm',
-		lol: '/lol'
-	}
 	var urls = []; // result
-	var requrl = 'http://www.gosugamers.net';
+	var requrl = this.requrl;
 	if (game) {
-		if (gameSuffix[game]) requrl = requrl + gameSuffix[game];
+		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game];
 		else return callback('Unknown game type: '+game);
 	}
 	requrl = requrl + '/gosubet?r-page='+page;
@@ -86,7 +86,7 @@ Gosu.fetchMatchUrls = function (game, page, callback){
  * @param   {integer} [page=1] - Page number
  * @param   {fetchUrlsCallback} callback
  */
-Gosu.fetchVodUrls = function (game, page, callback){
+Gosu.prototype.fetchVodUrls = function (game, page, callback){
 	if (typeof game === 'function') { // Only required param
 		var callback = game;
 		var page = 1;
@@ -107,18 +107,10 @@ Gosu.fetchVodUrls = function (game, page, callback){
 		return callback('Invalid page number');
 	}
 
-	// Map URLs to game types
-	var gameSuffix = {
-		csgo: '/counterstrike/vods',
-		dota2: '/dota2/vods',
-		hearthstone: '/hearthstone/vods',
-		hots: '/heroesofthestorm/vods',
-		lol: '/lol/vods'
-	}
 	var urls = []; // result
-	var requrl = 'http://www.gosugamers.net';
+	var requrl = this.requrl;
 	if (game) {
-		if (gameSuffix[game]) requrl = requrl + gameSuffix[game];
+		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game] + '/vods';
 		else return callback('Unknown game type: '+game);
 	}
 
@@ -170,7 +162,7 @@ Gosu.fetchVodUrls = function (game, page, callback){
  * @param    {string} url - The full URL to a Gosu match
  * @callback {parseMatchCallback} callback
  */
-Gosu.parseMatch = function (url, callback){
+Gosu.prototype.parseMatch = function (url, callback){
 	var match = {
 		url: url,
 		home: {},
@@ -267,7 +259,7 @@ Gosu.parseMatch = function (url, callback){
  * @param    {array} urls - An array containing full URLs to Gosu matches
  * @callback {parseMatchesCallback} callback
  */
-Gosu.parseMatches = function (urls, callback){
+Gosu.prototype.parseMatches = function (urls, callback){
 	var self = this;
 	var matches = [];
 	eachAsync(urls, function (url, index, done) {
