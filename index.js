@@ -55,6 +55,9 @@ Gosu.prototype.fetchMatchUrls = function (game, page, callback){
 		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game];
 		else return callback('Unknown game type: '+game);
 	}
+	else {
+		return callback('Unknown game type: '+game);
+	}
 	requrl = requrl + '/gosubet?r-page='+page;
 	request(requrl, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
@@ -113,8 +116,9 @@ Gosu.prototype.fetchVodUrls = function (game, page, callback){
 		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game] + '/vods';
 		else return callback('Unknown game type: '+game);
 	}
-
-
+	else {
+		return callback('Unknown game type: '+game);
+	}
 	request(requrl, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
@@ -213,14 +217,12 @@ Gosu.prototype.parseMatch = function (url, callback){
 	  			match.home.score = Number($('.hidden.results').children().first().text());
 	  			match.away.score = Number($('.hidden.results').children().last().text());
 					var urls = $('.matches-streams span textarea iframe');
-					//console.log(urls);
 					var index;
 					match.vods = [];
 					if (urls.length == 0){
 						match.vods.push("No VODs found for this match");
 					}else{
 						for (index = 0;index < urls.length; ++index){
-							//console.log(urls[index].attribs.src.split(/[/?]/)[4]);
 							match.vods.push(urls[index].attribs.src.split(/[/?]/)[4]);
 						}
 				  }
