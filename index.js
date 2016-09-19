@@ -3,10 +3,18 @@ var request = require('request');
 var eachAsync = require('each-async');
 var moment = require('moment');
 
-module.exports = Gosu;
-function Gosu(){}
-
-
+module.exports = new Gosu();
+function Gosu(){
+	this.gameSuffix = {
+		csgo: '/counterstrike',
+		dota2: '/dota2',
+		hearthstone: '/hearthstone',
+		hots: '/heroesofthestorm',
+		lol: '/lol',
+		overwatch: '/overwatch'
+	}
+	this.requrl = 'http://www.gosugamers.net';
+}
 /**
  * Callback for fetching match URLs
  *
@@ -20,7 +28,7 @@ function Gosu(){}
  * @param   {integer} [page=1] - Page number
  * @param   {fetchUrlsCallback} callback
  */
-Gosu.fetchMatchUrls = function (game, page, callback){
+Gosu.prototype.fetchMatchUrls = function (game, page, callback){
 	if (typeof game === 'function') { // Only required param
 		var callback = game;
 		var page = 1;
@@ -41,22 +49,15 @@ Gosu.fetchMatchUrls = function (game, page, callback){
 		return callback('Invalid page number');
 	}
 
-	// Map URLs to game types
-	var gameSuffix = {
-		csgo: '/counterstrike',
-		dota2: '/dota2',
-		hearthstone: '/hearthstone',
-		hots: '/heroesofthestorm',
-		lol: '/lol'
-	}
 	var urls = []; // result
-	var requrl = 'http://www.gosugamers.net';
+	var requrl = this.requrl;
 	if (game) {
-		if (gameSuffix[game]) requrl = requrl + gameSuffix[game];
+		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game];
 		else return callback('Unknown game type: '+game);
 	}
+
 	requrl = requrl + '/gosubet?r-page='+page;
-	request(requrl, function (error, response, html) {
+	request(requrl, {timeout: 15000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 	  	$('table.simple.matches tbody').each(function (i, element) {
@@ -86,7 +87,7 @@ Gosu.fetchMatchUrls = function (game, page, callback){
  * @param   {integer} [page=1] - Page number
  * @param   {fetchUrlsCallback} callback
  */
-Gosu.fetchVodUrls = function (game, page, callback){
+Gosu.prototype.fetchVodUrls = function (game, page, callback){
 	if (typeof game === 'function') { // Only required param
 		var callback = game;
 		var page = 1;
@@ -107,23 +108,14 @@ Gosu.fetchVodUrls = function (game, page, callback){
 		return callback('Invalid page number');
 	}
 
-	// Map URLs to game types
-	var gameSuffix = {
-		csgo: '/counterstrike/vods',
-		dota2: '/dota2/vods',
-		hearthstone: '/hearthstone/vods',
-		hots: '/heroesofthestorm/vods',
-		lol: '/lol/vods'
-	}
 	var urls = []; // result
-	var requrl = 'http://www.gosugamers.net';
+	var requrl = this.requrl;
 	if (game) {
-		if (gameSuffix[game]) requrl = requrl + gameSuffix[game];
+		if (this.gameSuffix[game]) requrl = requrl + this.gameSuffix[game] + '/vods';
 		else return callback('Unknown game type: '+game);
 	}
 
-
-	request(requrl, function (error, response, html) {
+	request(requrl, {timeout: 15000}, function (error, response, html) {
 	  if (!error && response.statusCode == 200) {
 	  	var $ = cheerio.load(html);
 			//Get to the table that has all the match information
@@ -137,8 +129,8 @@ Gosu.fetchVodUrls = function (game, page, callback){
 		  	});
 	  	});
 
-			//Function to sort and return only unique entries
-			function sort_unique(arr) {
+		//Function to sort and return only unique entries
+		function sort_unique(arr) {
 			arr = arr.sort(function (a, b) { return a*1 - b*1; });
 			var ret = [arr[0]];
 			for (var i = 1; i < arr.length; i++) { // start loop at 1 as element 0 can never be a duplicate
@@ -147,10 +139,10 @@ Gosu.fetchVodUrls = function (game, page, callback){
 					}
 			}
 			return ret;
-	}
+		}
 		//Sort the urls and only return uniq entries (ie no duplicates) as the parseMatch function will get all VODS on a page so
 		//dont need all the extra urls for each match (for multi round matches)
-		 var sortedurls = sort_unique(urls);
+		var sortedurls = sort_unique(urls);
 	  	return callback(null, sortedurls);
 	  } else {
 	  	return callback(error);
@@ -170,7 +162,7 @@ Gosu.fetchVodUrls = function (game, page, callback){
  * @param    {string} url - The full URL to a Gosu match
  * @callback {parseMatchCallback} callback
  */
-Gosu.parseMatch = function (url, callback){
+Gosu.prototype.parseMatch = function (url, callback){
 	var match = {
 		url: url,
 		home: {},
@@ -221,14 +213,12 @@ Gosu.parseMatch = function (url, callback){
 	  			match.home.score = Number($('.hidden.results').children().first().text());
 	  			match.away.score = Number($('.hidden.results').children().last().text());
 					var urls = $('.matches-streams span textarea iframe');
-					//console.log(urls);
 					var index;
 					match.vods = [];
 					if (urls.length == 0){
 						match.vods.push("No VODs found for this match");
 					}else{
 						for (index = 0;index < urls.length; ++index){
-							//console.log(urls[index].attribs.src.split(/[/?]/)[4]);
 							match.vods.push(urls[index].attribs.src.split(/[/?]/)[4]);
 						}
 				  }
@@ -256,7 +246,7 @@ Gosu.parseMatch = function (url, callback){
 }
 
 /**
- * Callback for parsing match URLs
+ * Callback for parsing match 
  *
  * @callback parseMatchesCallback
  * @param {(null|string)} error - An error string
@@ -267,7 +257,7 @@ Gosu.parseMatch = function (url, callback){
  * @param    {array} urls - An array containing full URLs to Gosu matches
  * @callback {parseMatchesCallback} callback
  */
-Gosu.parseMatches = function (urls, callback){
+Gosu.prototype.parseMatches = function (urls, callback){
 	var self = this;
 	var matches = [];
 	eachAsync(urls, function (url, index, done) {
@@ -285,5 +275,76 @@ Gosu.parseMatches = function (urls, callback){
 		} else { // Success!
 			return callback(null, matches);
 		}
+	});
+}
+/**
+ * Callback for fetching rank
+ *
+ * @callback fetchRankCallback
+ * @param {(null|string)} error - An error string
+ * @param {array} An array of strings containing URLs
+ */
+
+/*
+ * @param   {string} [game] - Game type
+ * @param   {integer} [page=1] - Page number
+ * @param   {fetchRankCallback} callback
+ */
+Gosu.prototype.fetchRank = function (game, page, callback){
+	if (typeof game === 'function') { // Only required param
+		var callback = game;
+		var page = 1;
+		game = null;
+	} else if (typeof page === 'function'){ // Only 2 params
+		var callback = page;
+		if (typeof game === 'number' || !isNaN(parseInt(game, 10))) { // (page, callback)
+			page = game;
+			game = null;
+		} else { // (game, callback)
+			page = 1;
+		}
+	}
+	// Check type of 'page'
+	if (page === null) {
+		page = 1;
+	} else if (isNaN(page) || parseInt(Number(page)) != page || isNaN(parseInt(page, 10))) {
+		return callback('Invalid page number');
+	}
+
+	var results = [];
+	var requrl = this.requrl;
+	if (game) {
+		if (this.gameSuffix[game]) {
+			requrl = requrl + this.gameSuffix[game];
+		}
+		else {
+			return callback('Unknown game type: '+game);
+		}
+	}
+
+	requrl = requrl + '/rankings?page='+page;
+	request(requrl, {timeout: 15000}, function (error, response, html) {
+	  if (!error && response.statusCode == 200) {
+	  	var $ = cheerio.load(html);
+	  	$('table.simple.gamelist tbody').each(function (i, element) {
+	  		var table = cheerio.load(element);
+		  	table('tr').each(function (i, element) {
+		  		if ($(element).data('id')) {
+		  			var shortNation = $(element).find('h4 .main span[title]').attr('class').replace('flag ', '');
+			  		results.push({
+			  			id: $(element).data('id'),
+			  			name: $(element).find('h4 .main span[class!=flag]').text(),
+			  			nation: shortNation,
+			  			point: $(element).find('.numbers').text(),
+			  			rankChange: $(element).find('.rank-change i').attr('title'),
+			  			rank: $(element).find('.rank .ranking').text()
+			  		})	
+		  		}
+		  	});
+	  	});
+	  	return callback(null, results);
+	  } else {
+	  	return callback(error);
+	  }
 	});
 }
