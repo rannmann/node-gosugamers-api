@@ -246,7 +246,7 @@ Gosu.prototype.parseMatch = function (url, callback){
 }
 
 /**
- * Callback for parsing match URLs
+ * Callback for parsing match 
  *
  * @callback parseMatchesCallback
  * @param {(null|string)} error - An error string
@@ -275,5 +275,76 @@ Gosu.prototype.parseMatches = function (urls, callback){
 		} else { // Success!
 			return callback(null, matches);
 		}
+	});
+}
+/**
+ * Callback for fetching rank
+ *
+ * @callback fetchRankCallback
+ * @param {(null|string)} error - An error string
+ * @param {array} An array of strings containing URLs
+ */
+
+/*
+ * @param   {string} [game] - Game type
+ * @param   {integer} [page=1] - Page number
+ * @param   {fetchRankCallback} callback
+ */
+Gosu.prototype.fetchRank = function (game, page, callback){
+	if (typeof game === 'function') { // Only required param
+		var callback = game;
+		var page = 1;
+		game = null;
+	} else if (typeof page === 'function'){ // Only 2 params
+		var callback = page;
+		if (typeof game === 'number' || !isNaN(parseInt(game, 10))) { // (page, callback)
+			page = game;
+			game = null;
+		} else { // (game, callback)
+			page = 1;
+		}
+	}
+	// Check type of 'page'
+	if (page === null) {
+		page = 1;
+	} else if (isNaN(page) || parseInt(Number(page)) != page || isNaN(parseInt(page, 10))) {
+		return callback('Invalid page number');
+	}
+
+	var results = [];
+	var requrl = this.requrl;
+	if (game) {
+		if (this.gameSuffix[game]) {
+			requrl = requrl + this.gameSuffix[game];
+		}
+		else {
+			return callback('Unknown game type: '+game);
+		}
+	}
+
+	requrl = requrl + '/rankings?page='+page;
+	request(requrl, {timeout: 15000}, function (error, response, html) {
+	  if (!error && response.statusCode == 200) {
+	  	var $ = cheerio.load(html);
+	  	$('table.simple.gamelist tbody').each(function (i, element) {
+	  		var table = cheerio.load(element);
+		  	table('tr').each(function (i, element) {
+		  		if ($(element).data('id')) {
+		  			var shortNation = $(element).find('h4 .main span[title]').attr('class').replace('flag ', '');
+			  		results.push({
+			  			id: $(element).data('id'),
+			  			name: $(element).find('h4 .main span[class!=flag]').text(),
+			  			nation: shortNation,
+			  			point: $(element).find('.numbers').text(),
+			  			rankChange: $(element).find('.rank-change i').attr('title'),
+			  			rank: $(element).find('.rank .ranking').text()
+			  		})	
+		  		}
+		  	});
+	  	});
+	  	return callback(null, results);
+	  } else {
+	  	return callback(error);
+	  }
 	});
 }
